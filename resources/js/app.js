@@ -9,7 +9,6 @@ import ChatMessages from './components/ChatMessages.vue';
 
 const app = createApp({
     components: {
-        Test,
         ChatForm,
         ChatMessages
     },
@@ -22,6 +21,27 @@ const app = createApp({
 
     created() {
         this.fetchMessages();
+        Echo.private('chat')
+        .listen('MessageSent', (e) => {
+            this.messages.push({
+            message: e.message.message,
+            user: e.user
+            });
+
+        });
+
+    },
+
+    watch: {
+        messages: {
+            handler(){
+                // scroll bottom after dom update
+                this.$nextTick(() => {
+                    var obj = document.getElementsByClassName('panel-body');
+                    obj[0].scrollTop = obj[0].scrollHeight;
+                })
+            }, deep: true
+        }
     },
 
     methods: {
@@ -38,8 +58,12 @@ const app = createApp({
               console.log(response.data);
             });
         }
-    }
+    },
+
 });
 
 
 app.mount('#app');
+
+
+
